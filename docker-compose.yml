@@ -1,0 +1,33 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: app.Dockerfile
+    container_name: ratestask_app
+    env_file:
+      - .env
+    depends_on:
+      - db
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - 5000:5000
+    command: python app.py --config=test
+
+  db:
+    build:
+      context: .
+      dockerfile: database.Dockerfile
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ratestask
+      POSTGRES_DB: rates
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    container_name: ratestask_db
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
