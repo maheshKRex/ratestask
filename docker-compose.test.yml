@@ -1,18 +1,18 @@
 services:
-  app:
+  ratestask_web_test:
     build:
-      context: .
       dockerfile: app.Dockerfile
-    container_name: ratestask_app
-    env_file:
-      - .env
-    depends_on:
-      - db
+      context: .
+    command: python -m pytest -v
     volumes:
-      - .:/usr/src/app
+      - .:/usr/src/app/
     ports:
       - 5000:5000
-    command: python app.py --config=dev
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+    container_name: ratestask_web_test
 
   db:
     build:
