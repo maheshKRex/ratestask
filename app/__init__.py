@@ -1,42 +1,43 @@
 from flask import Flask, jsonify, request
 from psycopg2.extras import RealDictCursor
-from flask_parameter_validation import ValidateParameters, Json, Query
 from database import get_db_connection
-from flask_marshmallow import Marshmallow
-from marshmallow import fields
+from marshmallow import fields, Schema
 from marshmallow.exceptions import ValidationError
 import re
+import datetime
 
 app = Flask(__name__)
-ma = Marshmallow(app)
 app.config.from_object('config.DevConfig')
 
-class QueryParamSchema(ma.Schema):
-    date_from = fields.Str(required=True, validate=lambda x: validate_date_format(x))
-    date_to = fields.Str(required=True, validate=lambda x: validate_date_format(x))
-    origin = fields.Str(required=True)
-    destination = fields.Str(required=True)
-
 def validate_date_format(value):
-    if not re.match(r"^\d{4}-\d{2}-\d{2}$", value):
+    try:
+        datetime.datetime.strptime(value, "%Y-%m-%d")
+        return True
+    except ValueError:
         raise ValidationError("Invalid date format")
 
-def validate_query_params():
-    try:
-        query_params = query_schema.load(request.args)
-    except ValidationError as err:
-        return jsonify({"errors": err.messages}), 400
+def validate_origin_destination(value):
+    if not value:
+        raise ValidationError("Origin or destination cannot be empty.")
+    return value
 
-    return jsonify({"message": "Validation passed!", "params": query_params})
+class QueryParamSchema(Schema):
+    date_from = fields.Str(required=True, validate=validate_date_format)
+    date_to = fields.Str(required=True, validate=validate_date_format)
+    origin = fields.Str(required=True, validate=validate_origin_destination)
+    destination = fields.Str(required=True, validate=validate_origin_destination)
 
 @app.route("/rates", methods=['GET'])
-def rates(
-    date_from: str = Query(pattern=r"^\d{4}-\d{2}-\d{2}$"),
-    date_to: str = Query(pattern=r"^\d{4}-\d{2}-\d{2}$"),
-    origin: str = Query(pattern=r"^\S+$"),
-    destination: str = Query(pattern=r"^\S+$"),
-):
-    query_params = QueryParamSchema().load(request.args)
+def rates():
+    # validations of from, to dates (the date pattern and actual date values) and origin, destination strings
+    schema = QueryParamSchema()
+    try:
+        query_params = schema.load(request.args)
+    except ValidationError as err:
+        response = jsonify({"errors": err.messages})
+        response.status_code = 400
+        return response
+    
     connection = get_db_connection()
     cursor = connection.cursor(cursor_factory=RealDictCursor)
     cursor.execute(
