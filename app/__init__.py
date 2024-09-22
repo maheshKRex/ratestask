@@ -9,6 +9,7 @@ import datetime
 app = Flask(__name__)
 app.config.from_object('config.DevConfig')
 
+# date format, date time value validator
 def validate_date_format(value):
     try:
         datetime.datetime.strptime(value, "%Y-%m-%d")
@@ -16,6 +17,7 @@ def validate_date_format(value):
     except ValueError:
         raise ValidationError("Invalid date format")
 
+# origin and destination query values validator
 def validate_origin_destination(value):
     if not value:
         raise ValidationError("Origin or destination cannot be empty.")

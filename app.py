@@ -1,8 +1,6 @@
 import click
 from flask import Flask
 from app import app
-
-from flask.cli import FlaskGroup
 from config import DevConfig, TestingConfig, ProductionConfig
 
 def create_app(config_name):
@@ -19,7 +17,6 @@ def create_app(config_name):
 @click.command()
 @click.option('--config', default='dev', help='The configurations to use are (dev, test, prod)')
 def cli(config):
-    click.echo(f"config: {config}")
     app = create_app(config)
     app.run(host="0.0.0.0")
     return app

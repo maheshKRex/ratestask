@@ -9,7 +9,7 @@ services:
     ports:
       - 5000:5000
     env_file:
-      - ./.env
+      - ./.test.env
     depends_on:
       - db
     container_name: ratestask_web_test
@@ -18,10 +18,6 @@ services:
     build:
       context: .
       dockerfile: database.Dockerfile
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ratestask
-      POSTGRES_DB: rates
     ports:
       - "5432:5432"
     volumes:
