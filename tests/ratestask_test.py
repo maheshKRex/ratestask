@@ -11,6 +11,7 @@ from app import app
         ("2016-01-012", "2016-01-10", "CNSGH", "north_europe_main", 400, {'errors': {'date_from': ['Invalid date format']}}),
         ("2016-01-51", "2016-01-10", "CNSGH", "north_europe_main", 400, {'errors': {'date_from': ['Invalid date format']}}),
         ("2016-01-01", "2016-01", "CNSGH", "north_europe_main", 400, {'errors': {'date_to': ['Invalid date format']}}),
+        ("2016/01/01", "2016-01", "CNSGH", "north_europe_main", 400, {'errors': {'date_from': ['Invalid date format'], 'date_to': ['Invalid date format']}}),
     ]
 )
 def test_rates(
